@@ -11,8 +11,19 @@
 
 GLOBAL $nodes;
 
+function debug(){
+    $args = func_get_args(); 
+    print_r(PHP_EOL."DEBUG.........".PHP_EOL);
+    foreach($args as $k => $arg){
+        print_r("arg {$k}:");
+        print_r($arg);
+        print_r(PHP_EOL);
+    }
+    print_r(PHP_EOL."DEBUG.........".PHP_EOL);
+}
 function insertNode($domains = [],$path='',$relationNode = "",$direction = ""){
     GLOBAL $nodes;
+    debug($domains,$path,$relationNode,$direction);
     if(!$domains)return;
     $domain = array_shift($domains);
     //如果当前节点不存在
@@ -28,11 +39,13 @@ function insertNode($domains = [],$path='',$relationNode = "",$direction = ""){
         if($relationNode && $direction){
             $nodes[$relationNode][$direction] = $domain;
         }
-    //    return insertNode();
-    }//else{
-    //如果当前节点已经存在
-        return insertNode($domains,$path);
-    //}
+        return insertNode($domains,$path,$domain,'child');
+    }
+    //逼近关系节点
+    if(isset($relationNode[$direction])){
+    
+    }
+    return insertNode($domains,$path);
 }
 
 function deleteNode($relationNode = 0,$domains = [],$path = ""){
