@@ -76,21 +76,21 @@ function insert($name='',$path='',$relationNode=0,$direction=''){
 
 function insertNode($domains=[],$path='',$currentNode=1,$direction='child'){
     GLOBAL $nodes;
-    //debug($domains,$path,$currentNode,$direction);
     if(!$domains)return;
     $domain = array_shift($domains);
-
     $relationID = isset($nodes[$currentNode][$direction]) ? $nodes[$currentNode][$direction] :  0;
     if(isset($nodes[$relationID])){
         if($nodes[$relationID]['name'] == $domain){
             return insertNode($domains,$path,$relationID,'child');
         }else{
-            while(isset($nodes[$relationID]) && isset($nodes[$nodes[$relationID]['right']]) && $nodes[$relationID]['name'] != $domain){
+            while(isset($nodes[$relationID])  && $nodes[$relationID]['name'] != $domain){
+                if(!isset($nodes[$relationID]['right']))break;
                 $relationID = $nodes[$relationID]['right'];
             } 
-            print_r($relationID);
-            $id = insert($domain,$domains?[]:[$path],$relationID,'right');
-            return insertNode($domains,$path,$id,'child');
+            if($nodes[$relationID]['name'] != $domain){
+                $relationID = insert($domain,$domains?[]:[$path],$relationID,'right');
+            }
+            return insertNode($domains,$path,$relationID,'child');
         }
     }else{
         $id = insert($domain,$domains?[]:[$path],$currentNode,$direction);
@@ -135,14 +135,16 @@ function deleteURL($url){
 }
 
 //print_r(formartURL("http://www.baidu.com/video/"));
-print_r($nodes);
+//print_r($nodes);
 insertURL("http://www.baidu.com/video/");
 insertURL("http://www.jd.com/videoi");
+/*
 insertURL("http://www.taobao.com/videoi");
 insertURL("http://www.tudou.com/videoi");
 insertURL("http://www.weibo.com/videoi");
 insertURL("http://www.sina.com/videoi");
 insertURL("http://www.zhihu.com/videoi");
+ */
 insertURL("http://www.dlang.org/videoi");
 insertURL("http://www.nginx.org/videoi");
 insertURL("http://www.about.me/videoi");
