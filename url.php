@@ -1,5 +1,5 @@
 <?php
-
+print_r('run start here=========================================='.PHP_EOL);
 /*
  * $node = [
  *    "name" => "",
@@ -10,17 +10,26 @@
  */
 
 GLOBAL $nodes;
+$nodes[1] = [
+    'name' => '/',
+    'path' => [],
+    'child' => 2,
+    'right' => 0
+];
+GLOBAL $id;
+$id = 1;
 
 function debug(){
     $args = func_get_args(); 
-    print_r(PHP_EOL."DEBUG.........".PHP_EOL);
+    print_r(PHP_EOL."DEBUG START.........".PHP_EOL);
     foreach($args as $k => $arg){
         print_r("arg {$k}:");
         print_r($arg);
         print_r(PHP_EOL);
     }
-    print_r(PHP_EOL."DEBUG.........".PHP_EOL);
+    print_r(PHP_EOL."DEBUG END.........".PHP_EOL);
 }
+/*
 function insertNode($domains = [],$path='',$relationNode = "",$direction = ""){
     GLOBAL $nodes;
     debug($domains,$path,$relationNode,$direction);
@@ -28,24 +37,65 @@ function insertNode($domains = [],$path='',$relationNode = "",$direction = ""){
     $domain = array_shift($domains);
     //如果当前节点不存在
     if(!isset($nodes[$domain])){
-        $nodes[$domain] = [
+        $id = count($nodes) + 1;
+        $nodes[$id] = [
             'name' => $domain,
         ];
         //如果当前节点是域名最后一个节点,而且存在$path
         if(!$domains && $path){
-            $nodes[$domain]['path'] = $path;
+            $nodes[$id]['path'] = $path;
         }
         //如果该节点不是顶级域名,修改关系节点
         if($relationNode && $direction){
-            $nodes[$relationNode][$direction] = $domain;
+            $nodes[$relationNode][$direction] = $id;
         }
-        return insertNode($domains,$path,$domain,'child');
+        return insertNode($domains,$path,$id,'child');
     }
     //逼近关系节点
     if(isset($relationNode[$direction])){
     
     }
     return insertNode($domains,$path);
+}
+ */
+
+function insert($name='',$path='',$relationNode=0,$direction=''){
+    GLOBAL $nodes;
+    GLOBAL $id;
+    //debug($name,$path,$relationNode,$direction);
+    $id++;
+    $nodes[$id] = [
+        'name' => $name,
+        'path' => $path,
+    ];
+    if($relationNode && $direction){
+        $nodes[$relationNode][$direction] = $id;
+    }
+    return $id;
+}
+
+function insertNode($domains=[],$path='',$currentNode=1,$direction='child'){
+    GLOBAL $nodes;
+    //debug($domains,$path,$currentNode,$direction);
+    if(!$domains)return;
+    $domain = array_shift($domains);
+
+    $relationID = isset($nodes[$currentNode][$direction]) ? $nodes[$currentNode][$direction] :  0;
+    if(isset($nodes[$relationID])){
+        if($nodes[$relationID]['name'] == $domain){
+            return insertNode($domains,$path,$relationID,'child');
+        }else{
+            while(isset($nodes[$relationID]) && isset($nodes[$nodes[$relationID]['right']]) && $nodes[$relationID]['name'] != $domain){
+                $relationID = $nodes[$relationID]['right'];
+            } 
+            print_r($relationID);
+            $id = insert($domain,$domains?[]:[$path],$relationID,'right');
+            return insertNode($domains,$path,$id,'child');
+        }
+    }else{
+        $id = insert($domain,$domains?[]:[$path],$currentNode,$direction);
+        return insertNode($domains,$path,$id,'child');
+    }
 }
 
 function deleteNode($relationNode = 0,$domains = [],$path = ""){
@@ -75,6 +125,7 @@ function formartURL($url){
 
 function insertURL($url){
     $url = formartURL($url);
+   // print_r($url);
     return insertNode($url['domains'],$url['path']);
 }
 
@@ -84,5 +135,15 @@ function deleteURL($url){
 }
 
 //print_r(formartURL("http://www.baidu.com/video/"));
+print_r($nodes);
 insertURL("http://www.baidu.com/video/");
+insertURL("http://www.jd.com/videoi");
+insertURL("http://www.taobao.com/videoi");
+insertURL("http://www.tudou.com/videoi");
+insertURL("http://www.weibo.com/videoi");
+insertURL("http://www.sina.com/videoi");
+insertURL("http://www.zhihu.com/videoi");
+insertURL("http://www.dlang.org/videoi");
+insertURL("http://www.nginx.org/videoi");
+insertURL("http://www.about.me/videoi");
 print_r($nodes);
