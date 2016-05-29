@@ -82,23 +82,20 @@ function searchNode($domains = [],$path = '',$currentNode=1,$direction='child'){
     if(!$domains)return false;
     $domain = array_shift($domains); 
     $relationID = isset($nodes[$currentNode][$direction]) ? $nodes[$currentNode][$direction] :  0;
-    debug("relationID:".$relationID.PHP_EOL);
     if(isset($nodes[$relationID])){
         while($nodes[$relationID]['name'] != $domain){
             if(!isset($nodes[$relationID]['right']))return false;
             $relationID = $nodes[$relationID]['right'];
         }
     }
-    if(!isset($nodes[$relationID]['child'])){
-        return true;
-    }
     if(!isset($nodes[$relationID]['path']) && !$nodes[$relationID]['path']){
         foreach($nodes[$relationID]['path'] as $_path){
             if(strpos($_path,$path) === 0)return true; 
         }
-        return false;
     }else{
-        return true;
+        if(!isset($nodes[$relationID]['child'])){
+            return true;
+        }
     }
 
     return searchNode($domains,$path,$relationID,'child');
@@ -133,11 +130,13 @@ function deleteURL($url){
 }
 
 function searchURL($url){
+    print_r($url);
     $url = formartURL($url);
     return searchNode($url['domains'],$url['path']);
 }
 
 insertURL("http://www.baidu.com");
+insertURL("http://test.api.viile.com");
 insertURL("http://www.jd.com/video");
 insertURL("http://www.taobao.com/pic");
 insertURL("http://www.tudou.com/item");
@@ -150,5 +149,8 @@ insertURL("http://www.about.me/viile");
 debug($nodes);
 
 var_dump(searchURL("http://www.baidu.com"));
-var_dump(searchURL("http://baidu.com"));
+var_dump(searchURL("http://m.www.baidu.com"));
+var_dump(searchURL("http://www.baidu.com/test"));
 var_dump(searchURL("http://m.baidu.com"));
+var_dump(searchURL("http://www.jd.com/video_test"));
+var_dump(searchURL("http://api.viile.com"));
