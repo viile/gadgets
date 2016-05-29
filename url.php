@@ -19,50 +19,24 @@ $nodes[1] = [
 GLOBAL $id;
 $id = 1;
 
+const DEBUG = false;
 function debug(){
-    $args = func_get_args(); 
-    print_r(PHP_EOL."DEBUG START.........".PHP_EOL);
-    foreach($args as $k => $arg){
-        print_r("arg {$k}:");
-        print_r($arg);
-        print_r(PHP_EOL);
-    }
-    print_r(PHP_EOL."DEBUG END.........".PHP_EOL);
-}
-/*
-function insertNode($domains = [],$path='',$relationNode = "",$direction = ""){
-    GLOBAL $nodes;
-    debug($domains,$path,$relationNode,$direction);
-    if(!$domains)return;
-    $domain = array_shift($domains);
-    //如果当前节点不存在
-    if(!isset($nodes[$domain])){
-        $id = count($nodes) + 1;
-        $nodes[$id] = [
-            'name' => $domain,
-        ];
-        //如果当前节点是域名最后一个节点,而且存在$path
-        if(!$domains && $path){
-            $nodes[$id]['path'] = $path;
+    if(DEBUG){
+        $args = func_get_args(); 
+        print_r(PHP_EOL."DEBUG START.........".PHP_EOL);
+        foreach($args as $k => $arg){
+            print_r("arg {$k}:");
+            print_r($arg);
+            print_r(PHP_EOL);
         }
-        //如果该节点不是顶级域名,修改关系节点
-        if($relationNode && $direction){
-            $nodes[$relationNode][$direction] = $id;
-        }
-        return insertNode($domains,$path,$id,'child');
+        print_r(PHP_EOL."DEBUG END.........".PHP_EOL);
     }
-    //逼近关系节点
-    if(isset($relationNode[$direction])){
-    
-    }
-    return insertNode($domains,$path);
 }
- */
 
 function insert($name='',$path='',$relationNode=0,$direction=''){
     GLOBAL $nodes;
     GLOBAL $id;
-    //debug($name,$path,$relationNode,$direction);
+    debug($name,$path,$relationNode,$direction);
     $id++;
     $nodes[$id] = [
         'name' => $name,
@@ -98,12 +72,36 @@ function insertNode($domains=[],$path='',$currentNode=1,$direction='child'){
     }
 }
 
-function deleteNode($relationNode = 0,$domains = [],$path = ""){
+function deleteNode($domains = [],$path = '',$currentNode=1,$direction='child'){
     GLOBAL $nodes;
 }
 
-function searchNode($relationNode = 0,$domains = [],$path = ""){
+function searchNode($domains = [],$path = '',$currentNode=1,$direction='child'){
+    debug($domains,$path,$currentNode,$direction);
     GLOBAL $nodes;
+    if(!$domains)return false;
+    $domain = array_shift($domains); 
+    $relationID = isset($nodes[$currentNode][$direction]) ? $nodes[$currentNode][$direction] :  0;
+    debug("relationID:".$relationID.PHP_EOL);
+    if(isset($nodes[$relationID])){
+        while($nodes[$relationID]['name'] != $domain){
+            if(!isset($nodes[$relationID]['right']))return false;
+            $relationID = $nodes[$relationID]['right'];
+        }
+    }
+    if(!isset($nodes[$relationID]['child'])){
+        return true;
+    }
+    if(!isset($nodes[$relationID]['path']) && !$nodes[$relationID]['path']){
+        foreach($nodes[$relationID]['path'] as $_path){
+            if(strpos($_path,$path) === 0)return true; 
+        }
+        return false;
+    }else{
+        return true;
+    }
+
+    return searchNode($domains,$path,$relationID,'child');
 }
 
 function formartDomain($domains = [],$result = []){
@@ -120,12 +118,12 @@ function formartURL($url){
     $url = parse_url($url);
     $domains = explode('.',$url['host']);
     $url['domains'] = formartDomain($domains);
+    $url['path'] = isset($url['path']) ? $url['path'] : [];
     return $url;
 }
 
 function insertURL($url){
     $url = formartURL($url);
-   // print_r($url);
     return insertNode($url['domains'],$url['path']);
 }
 
@@ -134,18 +132,23 @@ function deleteURL($url){
     return deleteNode($url['domains'],$url['path']);
 }
 
-//print_r(formartURL("http://www.baidu.com/video/"));
-//print_r($nodes);
-insertURL("http://www.baidu.com/video/");
-insertURL("http://www.jd.com/videoi");
-/*
-insertURL("http://www.taobao.com/videoi");
-insertURL("http://www.tudou.com/videoi");
-insertURL("http://www.weibo.com/videoi");
-insertURL("http://www.sina.com/videoi");
-insertURL("http://www.zhihu.com/videoi");
- */
-insertURL("http://www.dlang.org/videoi");
-insertURL("http://www.nginx.org/videoi");
-insertURL("http://www.about.me/videoi");
-print_r($nodes);
+function searchURL($url){
+    $url = formartURL($url);
+    return searchNode($url['domains'],$url['path']);
+}
+
+insertURL("http://www.baidu.com");
+insertURL("http://www.jd.com/video");
+insertURL("http://www.taobao.com/pic");
+insertURL("http://www.tudou.com/item");
+insertURL("http://www.weibo.com/status");
+insertURL("http://www.sina.com/timeline");
+insertURL("http://www.zhihu.com/question");
+insertURL("http://www.dlang.org/package");
+insertURL("http://www.nginx.org/version");
+insertURL("http://www.about.me/viile");
+debug($nodes);
+
+var_dump(searchURL("http://www.baidu.com"));
+var_dump(searchURL("http://baidu.com"));
+var_dump(searchURL("http://m.baidu.com"));
