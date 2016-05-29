@@ -88,14 +88,14 @@ function searchNode($domains = [],$path = '',$currentNode=1,$direction='child'){
             $relationID = $nodes[$relationID]['right'];
         }
     }
-    if(!isset($nodes[$relationID]['path']) && !$nodes[$relationID]['path']){
+    if($path && !isset($nodes[$relationID]['path']) && !$nodes[$relationID]['path']){
         foreach($nodes[$relationID]['path'] as $_path){
             if(strpos($_path,$path) === 0)return true; 
         }
-    }else{
-        if(!isset($nodes[$relationID]['child'])){
-            return true;
-        }
+    }
+
+    if(!isset($nodes[$relationID]['child'])){
+        return true;
     }
 
     return searchNode($domains,$path,$relationID,'child');
@@ -154,3 +154,5 @@ var_dump(searchURL("http://www.baidu.com/test"));
 var_dump(searchURL("http://m.baidu.com"));
 var_dump(searchURL("http://www.jd.com/video_test"));
 var_dump(searchURL("http://api.viile.com"));
+var_dump(searchURL("http://api.www.nginx.org"));
+var_dump(searchURL("http://www.nginx.org/version_test"));
