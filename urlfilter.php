@@ -96,9 +96,9 @@ class urlfilter
                         $attribute = $relationNode['attribute'] | $this->attributes['onlyDomain'];
                     }
                     $tags = $relationNode['tags'];
-                    if($relationNode['tags'] && !strstr($tags,$this->tags))
+                    if($relationNode['tags'])
                     {
-                        $tags .= ','.$this->tags; 
+                        $tags = implode(',',array_unique(explode(',',$tags.','.$this->tags)));
                     }
                     return $this->urlModel->update($relationNode['id'],[
                         'attribute'=>$attribute,
