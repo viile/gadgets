@@ -1,0 +1,10 @@
+[db]
+tablename : pt_admin_example
+content : username_string_required_text password_string_required_text
+
+[module]
+module : admin_admin_user
+
+
+
+
