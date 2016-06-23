@@ -1,0 +1,34 @@
+<script src="http://cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript">
+function remove(arrPerson,objPropery,objValue)
+{
+   return $.grep(arrPerson, function(cur,i){
+          return cur[objPropery]!=objValue;
+       });
+}
+
+function get(arrPerson,objPropery,objValue)
+{
+   return $.grep(arrPerson, function(cur,i){
+          return cur[objPropery]==objValue;
+       });
+}
+
+function build(arrPerson,parent_idresult)
+{
+
+}
+
+var nav = [
+	{"id":"1","parent_id":"0"},
+	{"id":"2","parent_id":"1"},
+	{"id":"3","parent_id":"1"},
+	{"id":"4","parent_id":"2"},
+	{"id":"5","parent_id":"4"},
+	{"id":"6","parent_id":"4"},
+	{"id":"7","parent_id":"0"},
+	{"id":"8","parent_id":"7"},
+	{"id":"9","parent_id":"8"},
+];
+
+</script>
