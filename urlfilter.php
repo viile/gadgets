@@ -95,10 +95,10 @@ class urlfilter
                     {
                         $attribute = $relationNode['attribute'] | $this->attributes['onlyDomain'];
                     }
-                    $tags = $relationNode['tags'];
+                    $tags = $this->tags;
                     if($relationNode['tags'])
                     {
-                        $tags = implode(',',array_unique(explode(',',$tags.','.$this->tags)));
+                        $tags = implode(',',array_unique(explode(',',$tags.','.$relationNode['tags'])));
                     }
                     return $this->urlModel->update($relationNode['id'],[
                         'attribute'=>$attribute,
@@ -224,16 +224,8 @@ class urlPathModel extends Model
 
 
 $filter = new urlfilter();
-$filter->insertURL("http://www.taobao.com","1");
-$filter->insertURL("http://www.taobao.com","2");
-$filter->insertURL("http://www.taobao.com/product/","1");
-$filter->insertURL("http://www.taobao.com/video/","3");
-$filter->insertURL("http://taobao.com","3");
-$filter->insertURL("http://www.baidu.com","2");
-$filter->insertURL("http://www.youku.com/test/","6");
-$filter->insertURL("http://api.baidu.com","3");
-$filter->insertURL("http://www.jd.com/item/","4");
-$filter->insertURL("http://www.jd.com/test/","4");
+$filter->insertURL("http://www.baidu.com","1");
+$filter->insertURL("http://baidu.com","1");
 
 print_r($nodes);
 print_r($node_path);
