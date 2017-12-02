@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+		<title>paste</title>
+	</head>
+	<body>
+		<div>
+			<h1>Paste</h1>
+			<div id="result"></div>
+		</div>
+	</body>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script type="text/javascript">
+document.addEventListener("paste", function (e) {
+	var url = 'http://test.viile.com/pic.php';
+	var params = {"mediaType": 3};
+	function dataURLtoBlob(dataurl) {
+		var arr = dataurl.split(",");
+		var mime = arr[0].match(/:(.*?);/)[1];
+		var bstr = atob(arr[1].replace(/\s/g, ''));
+		var n = bstr.length;
+		var u8arr = new Uint8Array(n);
+		while (n--) {
+			u8arr[n] = bstr.charCodeAt(n);
+		}
+		return new Blob([u8arr], {type: mime});
+	}
+    var cbd = e.clipboardData;
+	console.log(cbd.items.length);
+    for(var i = 0; i < cbd.items.length; i++) {
+        var item = cbd.items[i];
+		if (item.kind === "file") {
+            var blob = item.getAsFile();
+			console.log(blob.name);
+			console.log(blob.size);
+						
+			var fr = new FileReader();
+			fr.readAsDataURL(blob);
+			fr.onload=function(e){
+                var result=document.getElementById("result");
+				var str = this.result;
+                result.innerHTML='<img src="' + str +'" alt="" />';
+				var blobBin = dataURLtoBlob(str);
+				var formData = new FormData();
+				var fileType = blobBin.type.split("/")[1];
+				params.fileType = fileType;
+				formData.append('file', blobBin);
+
+				$.ajax({
+					url: url,
+					type: 'post',
+					processData: false,
+					contentType: false,
+					data: formData,
+					dataType: 'json',
+					success: function (data) {
+
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						console.log(textStatus + "---" + errorThrown);
+					}
+				});
+			}
+        }else{
+			console.log("not file");
+		}
+    }
+}, false);
+	</script>
+</html>
